@@ -1,7 +1,7 @@
 import inspect
 import json
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, Union
 from warnings import warn
 
 try:  # pragma: no cover
@@ -134,6 +134,9 @@ def _get_field_description(doc: Optional[str]) -> Optional[str]:
 
 
 def introspect_type(t, types_by_class: dict, types_by_name: dict, is_operation: bool = False) -> dict:
+    if isinstance(t, TypeVar):
+        t = object
+
     try:
         return types_by_class[t]
     except KeyError:

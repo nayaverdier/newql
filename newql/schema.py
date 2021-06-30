@@ -1,7 +1,7 @@
 from enum import Enum
 from functools import partial
 from inspect import isclass
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, TypeVar
 
 from .context import ExecutionContext
 from .errors import QueryError
@@ -78,7 +78,7 @@ def _resolve_field(
     field_type = field.field_type
     if field_type is list or get_origin(field_type) is list:
         list_args = get_args(field_type)
-        if not list_args:
+        if not list_args or isinstance(list_args[0], TypeVar):
             result = resolved
         else:
             item_type = list_args[0]
