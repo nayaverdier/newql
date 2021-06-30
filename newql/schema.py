@@ -1,12 +1,12 @@
 from enum import Enum
 from functools import partial
 from inspect import isclass
-from typing import Any, Dict, Optional, get_args, get_origin
+from typing import Any, Dict, Optional
 
 from .context import ExecutionContext
 from .errors import QueryError
 from .field import Field
-from .introspection import introspect_type
+from .introspection import get_args, get_origin, introspect_type
 from .parse import ParsedEnum, ParsedField, ParsedOperation, ParsedVariable, parse_query
 
 SKIP_FIELD = object()

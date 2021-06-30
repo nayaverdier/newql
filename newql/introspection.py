@@ -1,8 +1,13 @@
 import inspect
 import json
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union, get_args, get_origin
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 from warnings import warn
+
+try:  # pragma: no cover
+    from typing import get_args, get_origin
+except ImportError:  # pragma: no cover
+    from typing_inspect import get_args, get_origin  # type: ignore
 
 from .errors import SchemaWarning
 from .field import Field

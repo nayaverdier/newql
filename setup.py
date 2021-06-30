@@ -39,7 +39,11 @@ setup(
     url="https://github.com/nayaverdier/newql",
     license="MIT",
     packages=["newql"],
-    install_requires=["parsimonious>=0.8", "varname~=0.6"],
+    install_requires=[
+        "parsimonious>=0.8",
+        "typing_inspect;python_version<'3.7'",
+        "varname~=0.6",
+    ],
     python_requires=">=3.7",
     extras_require={
         "dev": DEV_REQUIRES,
