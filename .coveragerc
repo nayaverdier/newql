@@ -1,0 +1,2 @@
+[run]
+omit = newql/dev_server.py,newql/example.py
