@@ -4,7 +4,8 @@ from typing import Any, Dict, List, Optional
 
 from parsimonious import Grammar, NodeVisitor  # type: ignore
 
-# TODO: better way to define enum/null? just a single value skips the visit_* functions
+# Note: null and enum have "" suffix so that the visitor function is
+# called, see https://github.com/erikrose/parsimonious/issues/111
 grammar = Grammar(
     r'''
 document                 = _? (operation _?)+
@@ -25,10 +26,10 @@ pair                     = identifier _? ":" _? value
 value                    = list / object / boolean / null / string / number / integer / variable / enum
 
 boolean                  = "true" / "false"
-null                     = "null" / "null"
+null                     = "null" ""
 string                   = ~r'"""(\\.|(?!""").)*"""'s / ~r'"(\\[^\n]|[^\\"\n])*"'
 variable                 = "$" identifier
-enum                     = identifier / identifier
+enum                     = identifier ""
 integer                  = ~"-?(0|[1-9][0-9]*)"
 number                   = scientific / decimal
 decimal                  = ~r"-?[0-9]+\.[0-9]+"

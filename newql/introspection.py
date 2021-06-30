@@ -134,7 +134,7 @@ def _get_field_description(doc: Optional[str]) -> Optional[str]:
 
 
 def introspect_type(t, types_by_class: dict, types_by_name: dict, is_operation: bool = False) -> dict:
-    if isinstance(t, TypeVar):
+    if isinstance(t, TypeVar):  # pragma: no cover
         t = object
 
     try:
