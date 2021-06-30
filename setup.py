@@ -41,7 +41,7 @@ setup(
     packages=["newql"],
     install_requires=[
         "parsimonious>=0.8",
-        "typing_inspect;python_version<'3.7'",
+        "typing_inspect;python_version<='3.7'",
         "varname~=0.6",
     ],
     python_requires=">=3.7",
