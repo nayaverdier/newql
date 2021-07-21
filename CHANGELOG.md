@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.0 2021-07-21
+
+- Improve Enum support (was not working properly when wrapped
+  in an Optional or List)
+
 ## 0.1.1 2021-06-30
 
 - Fix changelog release date + header

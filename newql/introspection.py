@@ -33,17 +33,12 @@ BUILT_IN_TYPES = {
 
 
 def _get_type_info(t: type, types_by_class: dict, types_by_name: dict) -> dict:
-    t, is_optional = _check_optional(t)
+    t, is_optional = check_optional(t)
 
     if is_optional:
         return {"kind": "NON_NULL", "ofType": _get_type_info(t, types_by_class, types_by_name)}
-    elif t is list or get_origin(t) is list:
-        list_args = get_args(t)
-        if list_args:
-            item_type = list_args[0]
-        else:
-            item_type = object
-
+    elif check_list(t):
+        item_type = get_list_type(t) or object
         return {"kind": "LIST", "ofType": _get_type_info(item_type, types_by_class, types_by_name)}
     else:
         introspected = introspect_type(t, types_by_class, types_by_name)
@@ -78,12 +73,24 @@ def _parse_default_args(resolver: Callable) -> Dict[str, Any]:
     return arg_defaults
 
 
-def _check_optional(t: type) -> Tuple[type, bool]:
+def check_optional(t: type) -> Tuple[type, bool]:
     args = get_args(t)
     if get_origin(t) is Union and len(args) == 2 and isinstance(None, args[1]):
         return args[0], True
     else:
         return t, False
+
+
+def check_list(t: type) -> bool:
+    return t is list or get_origin(t) is list
+
+
+def get_list_type(t: type) -> Optional[type]:
+    args = get_args(t)
+    if args:
+        return args[0]
+    else:
+        return None
 
 
 def _get_args(field: Field, types_by_class: dict, types_by_name: dict) -> List[dict]:
@@ -95,7 +102,7 @@ def _get_args(field: Field, types_by_class: dict, types_by_name: dict) -> List[d
 
     introspected_args = []
     for arg, arg_type in field.args.items():
-        arg_type, is_optional = _check_optional(arg_type)
+        arg_type, is_optional = check_optional(arg_type)
         type_info = _get_type_info(arg_type, types_by_class, types_by_name)
 
         if arg in default_values:

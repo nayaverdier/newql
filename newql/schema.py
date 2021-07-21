@@ -1,12 +1,10 @@
-from enum import Enum
 from functools import partial
-from inspect import isclass
 from typing import Any, Dict, Optional, TypeVar
 
 from .context import ExecutionContext
 from .errors import QueryError
 from .field import Field
-from .introspection import get_args, get_origin, introspect_type
+from .introspection import check_list, check_optional, get_list_type, introspect_type
 from .parse import ParsedEnum, ParsedField, ParsedOperation, ParsedVariable, parse_query
 
 SKIP_FIELD = object()
@@ -38,8 +36,22 @@ def _resolve_result(context: ExecutionContext, field: type, requested_field: Par
     return result
 
 
-def _is_subclass(t, parent: type) -> bool:
-    return t and isclass(t) and issubclass(t, parent)
+def _resolve_arguments(context: ExecutionContext, data, arg_type):
+    # TODO: make sure this holds up for deeply nested dict/list/optional argument types
+
+    arg_type, _ = check_optional(arg_type)
+
+    if isinstance(data, dict):
+        return {key: _resolve_arguments(context, value, arg_type[key]) for key, value in data.items()}
+    elif isinstance(data, list):
+        list_type = get_list_type(arg_type)
+        return [_resolve_arguments(context, item, list_type) for item in data]
+    elif isinstance(data, ParsedVariable):
+        return context.variables[data.name]
+    elif isinstance(data, ParsedEnum):
+        return getattr(arg_type, data.name, data.name)
+    else:
+        return data
 
 
 def _resolve_field(
@@ -54,19 +66,11 @@ def _resolve_field(
         context.error("Unknown field requested", requested_field)
         return SKIP_FIELD
 
-    kwargs = requested_field.arguments or {}
-    for argument, value in kwargs.items():
-        if isinstance(value, ParsedVariable):
-            kwargs[argument] = context.variables[value.name]
-        elif isinstance(value, ParsedEnum):
-            argument_type = field.args.get(argument)
-            if _is_subclass(argument_type, Enum):
-                # default to the stringified enum, if it does not exist as
-                # an attribute on the Enum type
-                kwargs[argument] = getattr(argument_type, value.name, value.name)
+    raw_args = requested_field.arguments or {}
+    arguments: dict = _resolve_arguments(context, raw_args, field.args)  # type: ignore
 
     try:
-        resolved = field.resolver(parent, context, **kwargs)
+        resolved = field.resolver(parent, context, **arguments)
     except Exception as e:
         context.error(e, requested_field)
         return None
@@ -76,13 +80,12 @@ def _resolve_field(
         return resolved
 
     field_type = field.field_type
-    if field_type is list or get_origin(field_type) is list:
-        list_args = get_args(field_type)
-        if not list_args or isinstance(list_args[0], TypeVar):
+    if check_list(field_type):
+        list_type = get_list_type(field_type)
+        if not list_type or isinstance(list_type, TypeVar):
             result = resolved
         else:
-            item_type = list_args[0]
-            item_resolver = partial(_resolve_result, context, item_type, requested_field)
+            item_resolver = partial(_resolve_result, context, list_type, requested_field)
             result = list(map(item_resolver, resolved))
     else:
         result = _resolve_result(context, field_type, requested_field, resolved)

@@ -230,10 +230,75 @@ def test_enum():
             else:
                 return my_argument.value
 
+        @field
+        def enum_optional(_, _context, my_argument: Optional[MyEnum]) -> str:
+            if not my_argument:
+                return "Argument None"
+            elif isinstance(my_argument, str):
+                return f"Custom: {my_argument}"
+            else:
+                return my_argument.value
+
+        @field
+        def enum_default_none(_, _context, my_argument: MyEnum = None) -> str:
+            if not my_argument:
+                return "Argument None"
+            elif isinstance(my_argument, str):
+                return f"Custom: {my_argument}"
+            else:
+                return my_argument.value
+
+        @field
+        def enum_optional_default_none(_, _context, my_argument: Optional[MyEnum] = None) -> str:
+            if not my_argument:
+                return "Argument None"
+            elif isinstance(my_argument, str):
+                return f"Custom: {my_argument}"
+            else:
+                return my_argument.value
+
+        @field
+        def enum_list(_, _context, my_argument: List[MyEnum]) -> List[str]:
+            result = []
+            for arg in my_argument:
+                if not arg:
+                    result.append("Argument None")
+                elif isinstance(arg, str):
+                    result.append(f"Custom: {arg}")
+                else:
+                    result.append(arg.value)
+
+            return result
+
+        @field
+        def enum_optional_list(_, _context, my_argument: List[Optional[MyEnum]]) -> List[str]:
+            result = []
+            for arg in my_argument:
+                if not arg:
+                    result.append("Argument None")
+                elif isinstance(arg, str):
+                    result.append(f"Custom: {arg}")
+                else:
+                    result.append(arg.value)
+
+            return result
+
     schema = Schema(Query)
 
     assert schema.execute("{ my_enum(my_argument: FOO) }") == {"data": {"my_enum": "foo"}}
     assert schema.execute("{ my_enum(my_argument: unknown) }") == {"data": {"my_enum": "Custom: unknown"}}
+
+    for name in ("enum_optional", "enum_default_none", "enum_optional_default_none"):
+        assert schema.execute("{ " + name + "(my_argument: FOO) }") == {"data": {name: "foo"}}
+        assert schema.execute("{ " + name + "(my_argument: unknown) }") == {"data": {name: "Custom: unknown"}}
+        assert schema.execute("{ " + name + "(my_argument: null) }") == {"data": {name: "Argument None"}}
+
+    for name in ("enum_list", "enum_optional_list"):
+        assert schema.execute("{ " + name + "(my_argument: []) }") == {"data": {name: []}}
+        assert schema.execute("{ " + name + '(my_argument: [FOO, unknown, "random", null]) }') == {
+            "data": {name: ["foo", "Custom: unknown", "Custom: random", "Argument None"]}
+        }
+
     assert schema.introspect() == {
         "queryType": {"name": "Query"},
         "mutationType": None,
@@ -251,6 +316,80 @@ def test_enum():
                 "name": "Query",
                 "fields": [
                     {
+                        "name": "enum_default_none",
+                        "description": None,
+                        "args": [
+                            {
+                                "name": "my_argument",
+                                "description": None,
+                                "type": {"kind": "ENUM", "name": "MyEnum"},
+                                "defaultValue": "null",
+                            }
+                        ],
+                        "type": {"kind": "SCALAR", "name": "String"},
+                    },
+                    {
+                        "name": "enum_list",
+                        "description": None,
+                        "args": [
+                            {
+                                "name": "my_argument",
+                                "description": None,
+                                "type": {
+                                    "kind": "NON_NULL",
+                                    "ofType": {"kind": "LIST", "ofType": {"kind": "ENUM", "name": "MyEnum"}},
+                                },
+                                "defaultValue": None,
+                            }
+                        ],
+                        "type": {"kind": "LIST", "ofType": {"kind": "SCALAR", "name": "String"}},
+                    },
+                    {
+                        "name": "enum_optional",
+                        "description": None,
+                        "args": [
+                            {
+                                "name": "my_argument",
+                                "description": None,
+                                "type": {"kind": "ENUM", "name": "MyEnum"},
+                                "defaultValue": None,
+                            }
+                        ],
+                        "type": {"kind": "SCALAR", "name": "String"},
+                    },
+                    {
+                        "name": "enum_optional_default_none",
+                        "description": None,
+                        "args": [
+                            {
+                                "name": "my_argument",
+                                "description": None,
+                                "type": {"kind": "ENUM", "name": "MyEnum"},
+                                "defaultValue": "null",
+                            }
+                        ],
+                        "type": {"kind": "SCALAR", "name": "String"},
+                    },
+                    {
+                        "name": "enum_optional_list",
+                        "description": None,
+                        "args": [
+                            {
+                                "name": "my_argument",
+                                "description": None,
+                                "type": {
+                                    "kind": "NON_NULL",
+                                    "ofType": {
+                                        "kind": "LIST",
+                                        "ofType": {"kind": "NON_NULL", "ofType": {"kind": "ENUM", "name": "MyEnum"}},
+                                    },
+                                },
+                                "defaultValue": None,
+                            }
+                        ],
+                        "type": {"kind": "LIST", "ofType": {"kind": "SCALAR", "name": "String"}},
+                    },
+                    {
                         "name": "my_enum",
                         "description": None,
                         "args": [
@@ -262,7 +401,7 @@ def test_enum():
                             }
                         ],
                         "type": {"kind": "SCALAR", "name": "String"},
-                    }
+                    },
                 ],
                 "description": None,
                 "interfaces": [],

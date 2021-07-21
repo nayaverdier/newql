@@ -23,6 +23,7 @@ What `NewQL` does not support:
 - Fragments
 - Directives
 - Subscriptions
+- Per-field or per-type introspection (the introspection returns all or nothing)
 
 ## Installation
 
@@ -115,6 +116,26 @@ python -m newql.dev_server  # uses the schema in newql.example
 python -m newql.dev_server --schema <full import name of your schema>
 # for example:
 python -m newql.dev_server --schema my_module.nested_module.my_schema
+```
+
+Note that when defining a field inline and not specifying the field name,
+the field name will be determined by the name of the variable to which it
+is assigned. For example:
+
+```python
+class MyClass:
+    my_field = field(type=str)
+```
+
+The field will be named `my_field`. This is achieved by the library `varname`,
+however since it needs to parse AST to determine the name, it can take time.
+
+If there are more than a couple hundred fields, it is recommended to explicitly
+set the name of the field to avoid this performance hit:
+
+```python
+class MyClass:
+    my_field = field("my_field", type=str)
 ```
 
 ## Development
