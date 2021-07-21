@@ -12,29 +12,42 @@ def doc_test(*lines, doc):
     assert parse_document("\n".join(lines)) == doc
 
 
-def test_empty_document():
-    for doc in (
+COMMAS = ["", ",", " , ", ",,", " ,  , ,,, ", " ,\n\n ,,"]
+
+
+@pytest.mark.parametrize(
+    "doc",
+    (
         "",
         "# just a single comment",
         "# first line\n# second line\n  \t\t# third line",
         "# first line\n\n\n# last line",
         "\t\t\n# comment\n# another comment    \t\t  \n\n",
-    ):
-        with pytest.raises(ParseError) as info:
-            parse_document(doc)
-        error = str(info.value)
-        assert error.startswith("Rule 'document' didn't match at ''") or error.startswith(
-            "Rule 'operation' didn't match at ''"
-        )
+        *COMMAS,
+    ),
+)
+def test_empty_document(doc):
+    with pytest.raises(ParseError) as info:
+        parse_document(doc)
+    error = str(info.value)
+    assert error.startswith("Rule 'document' didn't match at ''") or error.startswith(
+        "Rule 'operation' didn't match at ''"
+    )
 
 
-def test_unnamed_query():
-    doc_test("{ query_field }", doc=ParsedOperation("query", [ParsedField("query_field")]))
-    doc_test("query { query_field }", doc=ParsedOperation("query", fields=[ParsedField("query_field")]))
+@pytest.mark.parametrize("comma", COMMAS)
+def test_unnamed_query(comma):
+    query = comma + "{" + comma + " query_field " + comma + "}" + comma
+    doc_test(query, doc=ParsedOperation("query", [ParsedField("query_field")]))
+    doc_test("query" + query, doc=ParsedOperation("query", fields=[ParsedField("query_field")]))
 
 
-def test_unnamed_mutation():
-    doc_test("mutation { mutation_field }", doc=ParsedOperation("mutation", [ParsedField("mutation_field")]))
+@pytest.mark.parametrize("comma", COMMAS)
+def test_unnamed_mutation(comma):
+    doc_test(
+        "mutation" + comma + "{" + comma + " mutation_field " + comma + "}" + comma,
+        doc=ParsedOperation("mutation", [ParsedField("mutation_field")]),
+    )
 
 
 @pytest.mark.parametrize("name", ["MyQuery", "__", "_query1", "_123"])
@@ -72,6 +85,21 @@ def test_comments_everywhere():
         "  another_field",
         "}  # comment after brace",
         "# comment on last line",
+        doc=ParsedOperation("query", [ParsedField("my_field"), ParsedField("another_field")]),
+    )
+
+
+def test_commas_everywhere():
+    doc_test(
+        ", ,",
+        ", ,{ ,",
+        "  ,, ,,",
+        "  my_field , , ,",
+        "  , ",
+        "  ,",
+        "  another_field",
+        "}  , ,",
+        ", ,",
         doc=ParsedOperation("query", [ParsedField("my_field"), ParsedField("another_field")]),
     )
 
@@ -114,9 +142,10 @@ def test_alias_with_complex_field():
     )
 
 
-def test_named_query_with_variable():
+@pytest.mark.parametrize("comma", COMMAS)
+def test_named_query_with_variable(comma):
     doc_test(
-        "query MyQuery($var1: int) { foo(arg: $var1) }",
+        "query MyQuery($var1: int" + comma + ") { foo(arg: $var1) }",
         doc=ParsedOperation(
             "query",
             [ParsedField("foo", arguments={"arg": ParsedVariable("var1")})],
@@ -127,9 +156,10 @@ def test_named_query_with_variable():
     )
 
 
-def test_unnamed_query_with_variable():
+@pytest.mark.parametrize("comma", COMMAS)
+def test_unnamed_query_with_variable(comma):
     doc_test(
-        "query($var1: int) { foo(arg: $var1) }",
+        "query($var1: int" + comma + ") { foo(arg: $var1) }",
         doc=ParsedOperation(
             "query",
             [ParsedField("foo", arguments={"arg": ParsedVariable("var1")})],
@@ -139,9 +169,10 @@ def test_unnamed_query_with_variable():
     )
 
 
-def test_named_query_with_default_variable():
+@pytest.mark.parametrize("comma", COMMAS)
+def test_named_query_with_default_variable(comma):
     doc_test(
-        "query MyQuery($var1: int = 1) { foo(arg: $var1) }",
+        "query MyQuery($var1: int = 1" + comma + ") { foo(arg: $var1) }",
         doc=ParsedOperation(
             "query",
             [ParsedField("foo", arguments={"arg": ParsedVariable("var1")})],
@@ -152,9 +183,10 @@ def test_named_query_with_default_variable():
     )
 
 
-def test_unnamed_query_with_default_variable():
+@pytest.mark.parametrize("comma", COMMAS)
+def test_unnamed_query_with_default_variable(comma):
     doc_test(
-        "query($var1: int = 1) { foo(arg: $var1) }",
+        "query($var1: int = 1" + comma + ") { foo(arg: $var1) }",
         doc=ParsedOperation(
             "query",
             [ParsedField("foo", arguments={"arg": ParsedVariable("var1")})],
@@ -164,9 +196,10 @@ def test_unnamed_query_with_default_variable():
     )
 
 
-def test_unnamed_query_with_variables():
+@pytest.mark.parametrize("comma", COMMAS)
+def test_unnamed_query_with_variables(comma):
     doc_test(
-        "query($var1: int, $var2: str, $__1var3: bool) { foo(arg: $var1) }",
+        "query($var1: int, $var2: str, $__1var3: bool" + comma + ") { foo(arg: $var1) }",
         doc=ParsedOperation(
             "query",
             [ParsedField("foo", arguments={"arg": ParsedVariable("var1")})],
@@ -176,9 +209,10 @@ def test_unnamed_query_with_variables():
     )
 
 
-def test_named_query_with_variables():
+@pytest.mark.parametrize("comma", COMMAS)
+def test_named_query_with_variables(comma):
     doc_test(
-        "query MyQuery($var1: int, $var2: str, $__1var3: bool) { foo(arg: $var1) }",
+        "query MyQuery($var1: int, $var2: str, $__1var3: bool" + comma + ") { foo(arg: $var1) }",
         doc=ParsedOperation(
             "query",
             [ParsedField("foo", arguments={"arg": ParsedVariable("var1")})],
@@ -189,9 +223,10 @@ def test_named_query_with_variables():
     )
 
 
-def test_unnamed_query_with_default_variables():
+@pytest.mark.parametrize("comma", COMMAS)
+def test_unnamed_query_with_default_variables(comma):
     doc_test(
-        'query($var1: int, $var2: str = "foo", $__1var3: bool) { foo(arg: $var1) }',
+        'query($var1: int, $var2: str = "foo", $__1var3: bool' + comma + ") { foo(arg: $var1) }",
         doc=ParsedOperation(
             "query",
             [ParsedField("foo", arguments={"arg": ParsedVariable("var1")})],
@@ -201,9 +236,10 @@ def test_unnamed_query_with_default_variables():
     )
 
 
-def test_named_query_with_default_variables():
+@pytest.mark.parametrize("comma", COMMAS)
+def test_named_query_with_default_variables(comma):
     doc_test(
-        'query TestQuery($var1: int, $var2: str = "foo", $__1var3: bool) { foo(arg: $var1) }',
+        'query TestQuery($var1: int, $var2: str = "foo", $__1var3: bool' + comma + ") { foo(arg: $var1) }",
         doc=ParsedOperation(
             "query",
             [ParsedField("foo", arguments={"arg": ParsedVariable("var1")})],
@@ -220,6 +256,7 @@ def test_duplicate_query_variables():
     assert str(info.value).splitlines()[0] == "ValueError: Duplicate variable in operation: 'var'"
 
 
+@pytest.mark.parametrize("comma", COMMAS)
 @pytest.mark.parametrize(
     ["raw_arg", "parsed_arg"],
     {
@@ -263,24 +300,25 @@ def test_duplicate_query_variables():
         '{a: ["a", "b"], b: 123, c: "test", d: true}': {"a": ["a", "b"], "b": 123, "c": "test", "d": True},
     }.items(),
 )
-def test_argument_types(raw_arg, parsed_arg):
+def test_argument_types(comma, raw_arg, parsed_arg):
     doc_test(
-        "{ field(arg: " + raw_arg + ") }",
+        "{ field(arg: " + raw_arg + comma + ") }",
         doc=ParsedOperation("query", [ParsedField("field", arguments={"arg": parsed_arg})]),
     )
     doc_test(
-        "{ field(list_arg: [" + raw_arg + "]) }",
+        "{ field(list_arg: [" + raw_arg + comma + "]) }",
         doc=ParsedOperation("query", [ParsedField("field", arguments={"list_arg": [parsed_arg]})]),
     )
     doc_test(
-        "{ field(object_arg: {foo: " + raw_arg + "}) }",
+        "{ field(object_arg: {foo: " + raw_arg + comma + "}) }",
         doc=ParsedOperation("query", [ParsedField("field", arguments={"object_arg": {"foo": parsed_arg}})]),
     )
 
 
-def test_multiple_arguments():
+@pytest.mark.parametrize("comma", COMMAS)
+def test_multiple_arguments(comma):
     doc_test(
-        '{ field(arg1: 0, arg2: true, arg3: "test") }',
+        '{ field(arg1: 0, arg2: true, arg3: "test"' + comma + ") }",
         doc=ParsedOperation("query", [ParsedField("field", arguments={"arg1": 0, "arg2": True, "arg3": "test"})]),
     )
 

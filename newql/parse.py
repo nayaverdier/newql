@@ -13,15 +13,14 @@ document                 = _? (operation _?)+
 operation                = named_explicit_operation / explicit_operation / fields
 explicit_operation       = operation_type operation_variables? _? fields
 named_explicit_operation = operation_type _ identifier operation_variables? _? fields
-operation_variables      = _? "(" _? operation_variable (separator operation_variable)* _? ")"
+operation_variables      = _? "(" _? operation_variable (_ operation_variable)* _? ")"
 operation_variable       = "$" identifier _? ":" _? identifier (_? "=" _? value)?
 operation_type           = "query" / "mutation"
 
-fields                   = "{" _? field (separator field)* _? "}"
-separator                = _? ","? _?
+fields                   = "{" _? field (_ field)* _? "}"
 field                    = field_alias? identifier field_arguments? (_? fields)?
 field_alias              = identifier _? ":" _?
-field_arguments          = _? "(" _? pair (separator pair)* _? ")"
+field_arguments          = _? "(" _? pair (_ pair)* _? ")"
 pair                     = identifier _? ":" _? value
 value                    = list / object / boolean / null / string / number / integer / variable / enum
 
@@ -34,11 +33,11 @@ integer                  = ~"-?(0|[1-9][0-9]*)"
 number                   = scientific / decimal
 decimal                  = ~r"-?[0-9]+\.[0-9]+"
 scientific               = ~r"-?(0|[1-9][0-9]*)(\.[0-9]+)?[eE]-?[0-9]+"
-list                     = "[" _? (value (separator value)* _?)? "]"
-object                   = "{" _? (pair (separator pair)* _?)? "}"
+list                     = "[" _? (value (_ value)* _?)? "]"
+object                   = "{" _? (pair (_ pair)* _?)? "}"
 
 identifier               = ~"[_a-zA-Z][_a-zA-Z0-9]*"
-white                    = ~r"[\s]+"
+white                    = ~r"[\s,]+"
 _                        = (white / comment)+
 comment                  = "#" ~r".*(\n|$)"
 '''

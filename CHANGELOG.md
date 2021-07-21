@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.0 2021-07-21
+
+- Support commas as whitespace
+
 ## 0.2.0 2021-07-21
 
 - Improve Enum support (was not working properly when wrapped
