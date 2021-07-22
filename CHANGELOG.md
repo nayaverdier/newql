@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1 2021-07-22
+
+- Allow unused variables to be sent in query
+
 ## 0.3.0 2021-07-21
 
 - Support commas as whitespace

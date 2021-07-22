@@ -16,10 +16,6 @@ def _validate_variables(variables: Optional[Dict[str, Any]], operation: ParsedOp
 
     operation_variables = set(operation.variables or ())
 
-    unknown_variables = all_variables.keys() - operation_variables
-    if unknown_variables:
-        raise QueryError(f"Undefined variables provided: {sorted(unknown_variables)}")
-
     missing_variables = operation_variables - all_variables.keys()
     if missing_variables:
         raise QueryError(f"Required variables not provided: {sorted(missing_variables)}")

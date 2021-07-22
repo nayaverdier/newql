@@ -455,9 +455,9 @@ def test_execute_override_default_variable(full_schema):
 
 
 def test_undefined_variables(full_schema):
-    with pytest.raises(QueryError) as info:
-        full_schema.execute('{ user(user_id: "U1") { name } }', {"user_id": "U2"})
-    assert str(info.value) == "Undefined variables provided: ['user_id']"
+    assert full_schema.execute('{ user(user_id: "U1") { name } }', {"user_id": "U2"}) == {
+        "data": {"user": {"name": "John Smith"}}
+    }
 
 
 def test_missing_variables(full_schema):
