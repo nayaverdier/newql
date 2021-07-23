@@ -14,7 +14,7 @@ operation                = named_explicit_operation / explicit_operation / field
 explicit_operation       = operation_type operation_variables? _? fields
 named_explicit_operation = operation_type _ identifier operation_variables? _? fields
 operation_variables      = _? "(" _? operation_variable (_ operation_variable)* _? ")"
-operation_variable       = "$" identifier _? ":" _? identifier (_? "=" _? value)?
+operation_variable       = "$" identifier _? ":" _? identifier (_? "!")? (_? "=" _? value)?
 operation_type           = "query" / "mutation"
 
 fields                   = "{" _? field (_ field)* _? "}"
@@ -146,7 +146,7 @@ class NewQLVisitor(NodeVisitor):
     def visit_operation_variable(self, _, visited_children):
         variable_name = visited_children[1]
         # variable_type = visited_children[5]
-        variable_default = visited_children[6]
+        variable_default = visited_children[7]
         if variable_default is None:
             default_value = MISSING
         else:

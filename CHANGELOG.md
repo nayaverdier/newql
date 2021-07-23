@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.0 2021-07-23
+
+- Allow '!' after variable type definitions (currently just ignored)
+
 ## 0.3.1 2021-07-22
 
 - Allow unused variables to be sent in query
