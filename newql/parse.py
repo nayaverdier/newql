@@ -14,7 +14,7 @@ operation                = named_explicit_operation / explicit_operation / field
 explicit_operation       = operation_type operation_variables? _? fields
 named_explicit_operation = operation_type _ identifier operation_variables? _? fields
 operation_variables      = _? "(" _? operation_variable (_ operation_variable)* _? ")"
-operation_variable       = "$" identifier _? ":" _? identifier (_? "!")? (_? "=" _? value)?
+operation_variable       = "$" identifier _? ":" _? type (_? "=" _? value)?
 operation_type           = "query" / "mutation"
 
 fields                   = "{" _? field (_ field)* _? "}"
@@ -37,6 +37,7 @@ list                     = "[" _? (value (_ value)* _?)? "]"
 object                   = "{" _? (pair (_ pair)* _?)? "}"
 
 identifier               = ~"[_a-zA-Z][_a-zA-Z0-9]*"
+type                     = (identifier (_? "!")?) / ("[" _? identifier (_? "!")? _? "]")
 white                    = ~r"[\s,]+"
 _                        = (white / comment)+
 comment                  = "#" ~r".*(\n|$)"
@@ -146,7 +147,7 @@ class NewQLVisitor(NodeVisitor):
     def visit_operation_variable(self, _, visited_children):
         variable_name = visited_children[1]
         # variable_type = visited_children[5]
-        variable_default = visited_children[7]
+        variable_default = visited_children[6]
         if variable_default is None:
             default_value = MISSING
         else:
@@ -210,7 +211,7 @@ class NewQLVisitor(NodeVisitor):
     def visit_boolean(self, node, _):
         return node.text == "true"
 
-    def visit_null(self, _node, _):
+    def visit_null(self, *_):
         return None
 
     def visit_string(self, node, _):
@@ -259,6 +260,13 @@ class NewQLVisitor(NodeVisitor):
 
     def visit_identifier(self, node, _):
         return node.text
+
+    def visit_type(self, _, visited_children):
+        data = visited_children[0]
+        if isinstance(data[0], str):
+            return data[0]
+        else:
+            return data[2]
 
     def generic_visit(self, node, visited_children):
         if not visited_children and node.text == "":

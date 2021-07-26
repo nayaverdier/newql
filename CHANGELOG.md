@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.0 2021-07-26
+
+- Allow variable types to be a list, e.g. `[String!]`
+
 ## 0.4.0 2021-07-23
 
 - Allow '!' after variable type definitions (currently just ignored)
