@@ -146,10 +146,10 @@ def test_alias_with_complex_field():
 
 @pytest.mark.parametrize("comma", COMMAS)
 @pytest.mark.parametrize("exclamation", EXCLAMATIONS)
-@pytest.mark.parametrize("l,r", VARIABLE_BRACKETS)
-def test_named_query_with_variable(comma, exclamation, l, r):
+@pytest.mark.parametrize("left,right", VARIABLE_BRACKETS)
+def test_named_query_with_variable(comma, exclamation, left, right):
     doc_test(
-        "query MyQuery($var1: " + l + "int" + exclamation + r + comma + ") { foo(arg: $var1) }",
+        "query MyQuery($var1: " + left + "int" + exclamation + right + comma + ") { foo(arg: $var1) }",
         doc=ParsedOperation(
             "query",
             [ParsedField("foo", arguments={"arg": ParsedVariable("var1")})],
@@ -162,10 +162,10 @@ def test_named_query_with_variable(comma, exclamation, l, r):
 
 @pytest.mark.parametrize("comma", COMMAS)
 @pytest.mark.parametrize("exclamation", EXCLAMATIONS)
-@pytest.mark.parametrize("l,r", VARIABLE_BRACKETS)
-def test_unnamed_query_with_variable(comma, exclamation, l, r):
+@pytest.mark.parametrize("left,right", VARIABLE_BRACKETS)
+def test_unnamed_query_with_variable(comma, exclamation, left, right):
     doc_test(
-        "query($var1: " + l + "int" + exclamation + r + comma + ") { foo(arg: $var1) }",
+        "query($var1: " + left + "int" + exclamation + right + comma + ") { foo(arg: $var1) }",
         doc=ParsedOperation(
             "query",
             [ParsedField("foo", arguments={"arg": ParsedVariable("var1")})],
@@ -177,10 +177,10 @@ def test_unnamed_query_with_variable(comma, exclamation, l, r):
 
 @pytest.mark.parametrize("comma", COMMAS)
 @pytest.mark.parametrize("exclamation", EXCLAMATIONS)
-@pytest.mark.parametrize("l,r", VARIABLE_BRACKETS)
-def test_named_query_with_default_variable(comma, exclamation, l, r):
+@pytest.mark.parametrize("left,right", VARIABLE_BRACKETS)
+def test_named_query_with_default_variable(comma, exclamation, left, right):
     doc_test(
-        "query MyQuery($var1: " + l + "int" + exclamation + r + " = 1" + comma + ") { foo(arg: $var1) }",
+        "query MyQuery($var1: " + left + "int" + exclamation + right + " = 1" + comma + ") { foo(arg: $var1) }",
         doc=ParsedOperation(
             "query",
             [ParsedField("foo", arguments={"arg": ParsedVariable("var1")})],
@@ -193,10 +193,10 @@ def test_named_query_with_default_variable(comma, exclamation, l, r):
 
 @pytest.mark.parametrize("comma", COMMAS)
 @pytest.mark.parametrize("exclamation", EXCLAMATIONS)
-@pytest.mark.parametrize("l,r", VARIABLE_BRACKETS)
-def test_unnamed_query_with_default_variable(comma, exclamation, l, r):
+@pytest.mark.parametrize("left,right", VARIABLE_BRACKETS)
+def test_unnamed_query_with_default_variable(comma, exclamation, left, right):
     doc_test(
-        "query($var1: " + l + "int" + exclamation + r + " = 1" + comma + ") { foo(arg: $var1) }",
+        "query($var1: " + left + "int" + exclamation + right + " = 1" + comma + ") { foo(arg: $var1) }",
         doc=ParsedOperation(
             "query",
             [ParsedField("foo", arguments={"arg": ParsedVariable("var1")})],
@@ -208,24 +208,24 @@ def test_unnamed_query_with_default_variable(comma, exclamation, l, r):
 
 @pytest.mark.parametrize("comma", COMMAS)
 @pytest.mark.parametrize("exclamation", EXCLAMATIONS)
-@pytest.mark.parametrize("l,r", VARIABLE_BRACKETS)
-def test_unnamed_query_with_variables(comma, exclamation, l, r):
+@pytest.mark.parametrize("left,right", VARIABLE_BRACKETS)
+def test_unnamed_query_with_variables(comma, exclamation, left, right):
     doc_test(
         "query($var1: "
-        + l
+        + left
         + "int"
         + exclamation
-        + r
+        + right
         + ", $var2: "
-        + l
+        + left
         + "str"
         + exclamation
-        + r
+        + right
         + ", $__1var3: "
-        + l
+        + left
         + "bool"
         + exclamation
-        + r
+        + right
         + comma
         + ") { foo(arg: $var1) }",
         doc=ParsedOperation(
@@ -239,24 +239,24 @@ def test_unnamed_query_with_variables(comma, exclamation, l, r):
 
 @pytest.mark.parametrize("comma", COMMAS)
 @pytest.mark.parametrize("exclamation", EXCLAMATIONS)
-@pytest.mark.parametrize("l,r", VARIABLE_BRACKETS)
-def test_named_query_with_variables(comma, exclamation, l, r):
+@pytest.mark.parametrize("left,right", VARIABLE_BRACKETS)
+def test_named_query_with_variables(comma, exclamation, left, right):
     doc_test(
         "query MyQuery($var1: "
-        + l
+        + left
         + "int"
         + exclamation
-        + r
+        + right
         + ", $var2: "
-        + l
+        + left
         + "str"
         + exclamation
-        + r
+        + right
         + ", $__1var3: "
-        + l
+        + left
         + "bool"
         + exclamation
-        + r
+        + right
         + comma
         + ") { foo(arg: $var1) }",
         doc=ParsedOperation(
@@ -271,24 +271,24 @@ def test_named_query_with_variables(comma, exclamation, l, r):
 
 @pytest.mark.parametrize("comma", COMMAS)
 @pytest.mark.parametrize("exclamation", EXCLAMATIONS)
-@pytest.mark.parametrize("l,r", VARIABLE_BRACKETS)
-def test_unnamed_query_with_default_variables(comma, exclamation, l, r):
+@pytest.mark.parametrize("left,right", VARIABLE_BRACKETS)
+def test_unnamed_query_with_default_variables(comma, exclamation, left, right):
     doc_test(
         "query($var1: "
-        + l
+        + left
         + "int"
         + exclamation
-        + r
+        + right
         + ", $var2: "
-        + l
+        + left
         + "str"
         + exclamation
-        + r
+        + right
         + ' = "foo", $__1var3: '
-        + l
+        + left
         + "bool"
         + exclamation
-        + r
+        + right
         + comma
         + ") { foo(arg: $var1) }",
         doc=ParsedOperation(
@@ -302,24 +302,24 @@ def test_unnamed_query_with_default_variables(comma, exclamation, l, r):
 
 @pytest.mark.parametrize("comma", COMMAS)
 @pytest.mark.parametrize("exclamation", EXCLAMATIONS)
-@pytest.mark.parametrize("l,r", VARIABLE_BRACKETS)
-def test_named_query_with_default_variables(comma, exclamation, l, r):
+@pytest.mark.parametrize("left,right", VARIABLE_BRACKETS)
+def test_named_query_with_default_variables(comma, exclamation, left, right):
     doc_test(
         "query TestQuery($var1: "
-        + l
+        + left
         + "int"
         + exclamation
-        + r
+        + right
         + ", $var2: "
-        + l
+        + left
         + "str"
         + exclamation
-        + r
+        + right
         + ' = "foo", $__1var3: '
-        + l
+        + left
         + "bool"
         + exclamation
-        + r
+        + right
         + comma
         + ") { foo(arg: $var1) }",
         doc=ParsedOperation(
