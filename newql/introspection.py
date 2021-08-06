@@ -5,7 +5,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, Union
 from warnings import warn
 
 try:  # pragma: no cover
-    from typing import get_args, get_origin
+    from typing import get_args, get_origin  # type: ignore
 except ImportError:  # pragma: no cover
     from typing_inspect import get_args, get_origin  # type: ignore
 
