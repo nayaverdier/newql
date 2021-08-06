@@ -105,7 +105,7 @@ class Schema:
             if "__schema" in query:
                 operation = parse_query("{ __schema }")
             else:
-                return {"data": None, "errors": str(e)}
+                return {"data": None, "errors": [str(e)]}
 
         operation_class = getattr(self, operation.operation)
         if operation_class is None:
@@ -127,7 +127,7 @@ class Schema:
 
         result: dict = {"data": resolved}
         if context.errors:
-            result["errors"] = context.errors
+            result["errors"] = [context.errors]  # type: ignore
         return result
 
     def _introspect(self, t: Optional[type], types_by_class: dict, types_by_name: dict) -> Optional[dict]:

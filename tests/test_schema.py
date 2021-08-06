@@ -101,7 +101,7 @@ def test_barebones_schema():
         "types": [],
     }
 
-    assert schema.execute("{ foo }") == {"data": {}, "errors": {"foo": "Unknown field requested"}}
+    assert schema.execute("{ foo }") == {"data": {}, "errors": [{"foo": "Unknown field requested"}]}
 
 
 def test_execute(full_schema):
@@ -122,7 +122,7 @@ def test_execute(full_schema):
 
     not_found_result = full_schema.execute('{ fake_user: user(user_id: "U-fake") { name } }')
     assert not_found_result["data"] == {"fake_user": None}
-    assert not_found_result["errors"]["fake_user"] == "User 'U-fake' not found"
+    assert not_found_result["errors"][0]["fake_user"] == "User 'U-fake' not found"
 
 
 def test_execute_list_field(full_schema):
@@ -501,13 +501,13 @@ def test_multiple_top_level_alias(full_schema):
 def test_missing_argument(full_schema):
     result = full_schema.execute("{ user { name } }")
     assert result["data"] == {"user": None}
-    assert result["errors"]["user"] == "user() missing 1 required positional argument: 'user_id'"
+    assert result["errors"][0]["user"] == "user() missing 1 required positional argument: 'user_id'"
 
 
 def test_nested_error(full_schema):
     result = full_schema.execute('{ user_alias: user(user_id: "U-buggy-phone") { full_phone: phone } }')
     assert result["data"] == {"user_alias": {"full_phone": None}}
-    assert result["errors"]["user_alias"]["full_phone"] == "unsupported operand type(s) for +: 'NoneType' and 'str'"
+    assert result["errors"][0]["user_alias"]["full_phone"] == "unsupported operand type(s) for +: 'NoneType' and 'str'"
 
 
 def test_default_resolver_getattr():
@@ -822,5 +822,5 @@ def test_full_schema_introspection(full_schema):
 def test_invalid_query_response(full_schema):
     assert full_schema.execute("gibberish") == {
         "data": None,
-        "errors": "Rule 'document' didn't match at 'gibberish' (line 1, column 1).",
+        "errors": ["Rule 'document' didn't match at 'gibberish' (line 1, column 1)."],
     }

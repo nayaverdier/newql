@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.0 2021-08-06
+
+- Make errors in the response return a list to be up to spec with GraphQL
+
 ## 0.5.0 2021-07-26
 
 - Allow variable types to be a list, e.g. `[String!]`
